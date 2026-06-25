@@ -18,7 +18,7 @@ const IconStar = ({ className }) => (
   </svg>
 );
 
-const API_URL = process.env.REACT_APP_API_BASE || "https://neuteebackend.onrender.com";
+const API_URL = process.env.REACT_APP_API_BASE || "nutee-eggxarhvdbgsgzbs.southindia-01.azurewebsites.net";
 
 function InternalSafeImg({ src, alt = "", className = "", style = {}, ...rest }) {
   const formatSource = (source) => {

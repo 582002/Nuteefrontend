@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Using the Render URL as the absolute fallback
-const baseURL = process.env.REACT_APP_API_BASE || "https://neuteebackend.onrender.com";
+const baseURL = process.env.REACT_APP_API_BASE || "nutee-eggxarhvdbgsgzbs.southindia-01.azurewebsites.net";
 
 const api = axios.create({
   baseURL: baseURL,

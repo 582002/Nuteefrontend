@@ -6,7 +6,7 @@ import authService from "../../api/authService";
 import toast from "react-hot-toast";
 import { handleError } from "../../utils/handleError";
 
-const API_URL = process.env.REACT_APP_API_BASE || "https://neuteebackend.onrender.com";
+const API_URL = process.env.REACT_APP_API_BASE || "nutee-eggxarhvdbgsgzbs.southindia-01.azurewebsites.net";
 
 const ShoppingCart = () => {
   const {

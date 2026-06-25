@@ -197,7 +197,7 @@ const IconMinus = ({ className }) => (
   </svg>
 );
 
-const API_URL = process.env.REACT_APP_API_BASE || "https://neuteebackend.onrender.com";
+const API_URL = process.env.REACT_APP_API_BASE || "nutee-eggxarhvdbgsgzbs.southindia-01.azurewebsites.net";
 
 /* ============================
    Enhanced Safe Image component

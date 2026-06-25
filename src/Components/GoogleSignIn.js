@@ -5,7 +5,7 @@ const GoogleSignIn = ({ className }) => {
   const onClick = () => {
     // Redirect to backend's oauth2 start endpoint
     // Backend (Spring) will redirect to Google. After success it should redirect to your frontend via controller (you already have that).
-    window.location.href = "https://neuteebackend.onrender.com/oauth2/authorization/google";
+    window.location.href = "nutee-eggxarhvdbgsgzbs.southindia-01.azurewebsites.net/oauth2/authorization/google";
   };
 
   return (

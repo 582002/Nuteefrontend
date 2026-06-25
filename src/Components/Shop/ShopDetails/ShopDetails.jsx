@@ -20,7 +20,7 @@ const IconStar = ({ className }) => (
 );
 
 /* ================= CONFIG ================= */
-const API_URL = process.env.REACT_APP_API_BASE || "https://neuteebackend.onrender.com";
+const API_URL = process.env.REACT_APP_API_BASE || "nutee-eggxarhvdbgsgzbs.southindia-01.azurewebsites.net";
 
 /* ================= SAFE IMAGE ================= */
 function SafeImg({ src, alt = "", className = "", ...rest }) {

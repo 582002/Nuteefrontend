@@ -53,11 +53,9 @@ const SizeModal = ({ open, product, onClose, onConfirm }) => {
   const [selectedSize, setSelectedSize] = useState(null);
   const [sortedSizes, setSortedSizes] = useState([]);
 
-  // Define the standard order
-  const sizeOrder = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
-
   useEffect(() => {
     if (product?.sizes) {
+      const sizeOrder = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
       // Sort the sizes based on our reference array
       const sorted = [...product.sizes].sort((a, b) => {
         return sizeOrder.indexOf(a.toUpperCase()) - sizeOrder.indexOf(b.toUpperCase());
@@ -122,7 +120,6 @@ const Trendy = () => {
   const [showAll, setShowAll] = useState(false);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [sizeModalOpen, setSizeModalOpen] = useState(false);
   const [modalProduct, setModalProduct] = useState(null);
 
@@ -135,7 +132,6 @@ const Trendy = () => {
         const response = await axios.get(`${API_URL}/api/products`);
         setProducts(response.data?.content || []);
       } catch (err) {
-        setError("Failed to fetch products.");
         toast.error("Could not load trendy products.");
       } finally {
         setLoading(false);

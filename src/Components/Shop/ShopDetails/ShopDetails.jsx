@@ -51,11 +51,9 @@ const SizeModal = ({ open, product, onClose, onConfirm }) => {
   const [selectedSize, setSelectedSize] = useState(null);
   const [sortedSizes, setSortedSizes] = useState([]);
 
-  // Reference Order
-  const sizeOrder = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
-
   useEffect(() => {
     if (product?.sizes) {
+      const sizeOrder = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
       // Sort sizes based on our reference array
       const sorted = [...product.sizes].sort((a, b) => {
         return sizeOrder.indexOf(a.toUpperCase()) - sizeOrder.indexOf(b.toUpperCase());

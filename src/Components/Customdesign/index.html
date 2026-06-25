@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D T-shirt Mockup Designer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        .color-swatch {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            cursor: pointer;
+            border: 2px solid #e5e7eb;
+        }
+        .color-swatch.active {
+            border-color: #3b82f6;
+        }
+        .canvas-container {
+            width: 100%;
+            height: 400px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .angle-button {
+            padding: 8px 12px;
+            background-color: #f3f4f6;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 8px;
+            font-weight: 500;
+        }
+        .angle-button.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
+
+        const TshirtDesigner = () => {
+            const [colors, setColors] = useState({
+                main: '#3b82f6',
+                cuff: '#ef4444',
+                bottomHem: '#10b981',
+                sleeves: '#f59e0b',
+                inner: '#6366f1',
+                grid: '#d1d5db'
+            });
+            
+            const [angles, setAngles] = useState([0, 45, 120, 180, 240, 315]);
+            const [currentAngle, setCurrentAngle] = useState(0);
+            const [animate, setAnimate] = useState(false);
+            const [reverse, setReverse] = useState(false);
+            const [speed, setSpeed] = useState(50);
+            const [opacity, setOpacity] = useState(100);
+            const [backgroundImage, setBackgroundImage] = useState(null);
+            const [texts, setTexts] = useState([]);
+            const [images, setImages] = useState([]);
+            const [activeTab, setActiveTab] = useState('colors');
+            
+            const canvasRef = useRef(null);
+            const sceneRef = useRef(null);
+            const cameraRef = useRef(null);
+            const rendererRef = useRef(null);
+            const tshirtRef = useRef(null);
+            const animationIdRef = useRef(null);
+
+            // Initialize Three.js scene
+            useEffect(() => {
+                const scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x222222);
+                
+                const camera = new THREE.PerspectiveCamera(75, 400 / 400, 0.1, 1000);
+                camera.position.z = 5;
+                
+                const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                renderer.setSize(400, 400);
+                
+                if (canvasRef.current) {
+                    canvasRef.current.appendChild(renderer.domElement);
+                }
+                
+                // Add lights
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+                scene.add(ambientLight);
+                
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight.position.set(5, 5, 5);
+                scene.add(directionalLight);
+                
+                // Create a simple T-shirt model (in a real app, you'd load a 3D model)
+                const geometry = new THREE.BoxGeometry(3, 3, 0.5);
+                const material = new THREE.MeshPhongMaterial({ 
+                    color: colors.main,
+                    shininess: 30
+                });
+                const tshirt = new THREE.Mesh(geometry, material);
+                scene.add(tshirt);
+                
+                sceneRef.current = scene;
+                cameraRef.current = camera;
+                rendererRef.current = renderer;
+                tshirtRef.current = tshirt;
+                
+                const animateScene = () => {
+                    animationIdRef.current = requestAnimationFrame(animateScene);
+                    
+                    if (animate) {
+                        const direction = reverse ? -1 : 1;
+                        tshirt.rotation.y += 0.01 * direction * (speed / 50);
+                    } else {
+                        tshirt.rotation.y = THREE.MathUtils.degToRad(currentAngle);
+                    }
+                    
+                    renderer.render(scene, camera);
+                };
+                
+                animateScene();
+                
+                return () => {
+                    cancelAnimationFrame(animationIdRef.current);
+                    renderer.dispose();
+                };
+            }, []);
+            
+            // Update T-shirt color when colors change
+            useEffect(() => {
+                if (tshirtRef.current) {
+                    tshirtRef.current.material.color.set(colors.main);
+                }
+            }, [colors.main]);
+            
+            const handleColorChange = (part, color) => {
+                setColors(prev => ({ ...prev, [part]: color }));
+            };
+            
+            const handleAddText = () => {
+                const newText = {
+                    id: Date.now(),
+                    content: 'Your Text',
+                    color: '#000000',
+                    size: 24,
+                    position: { x: 0, y: 0 }
+                };
+                setTexts([...texts, newText]);
+            };
+            
+            const handleAddImage = () => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            const newImage = {
+                                id: Date.now(),
+                                src: event.target.result,
+                                position: { x: 0, y: 0 },
+                                size: { width: 100, height: 100 }
+                            };
+                            setImages([...images, newImage]);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                };
+                input.click();
+            };
+            
+            const handleSnapshot = () => {
+                if (rendererRef.current) {
+                    const dataURL = rendererRef.current.domElement.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.href = dataURL;
+                    link.download = 'tshirt-design.png';
+                    link.click();
+                }
+            };
+            
+            const handleClearBackground = () => {
+                setBackgroundImage(null);
+                if (sceneRef.current) {
+                    sceneRef.current.background = new THREE.Color(0x222222);
+                }
+            };
+            
+            const presetColors = [
+                '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#6366f1', 
+                '#ec4899', '#8b5cf6', '#06b6d4', '#f97316', '#64748b'
+            ];
+            
+            return (
+                <div className="max-w-6xl mx-auto p-6">
+                    <h1 className="text-3xl font-bold text-gray-800 mb-6">3D T-shirt Mockup Designer</h1>
+                    
+                    <div className="flex flex-col lg:flex-row gap-6">
+                        {/* Left panel - Controls */}
+                        <div className="w-full lg:w-1/3 bg-white p-6 rounded-lg shadow-md">
+                            <div className="mb-6">
+                                <h2 className="text-xl font-semibold mb-4">Colors:</h2>
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                    {Object.entries(colors).map(([part, color]) => (
+                                        <div key={part} className="flex items-center">
+                                            <span className="w-24 capitalize">{part}:</span>
+                                            <div className="flex items-center">
+                                                <div 
+                                                    className="color-swatch mr-2" 
+                                                    style={{ backgroundColor: color }}
+                                                    onClick={() => {
+                                                        const input = document.createElement('input');
+                                                        input.type = 'color';
+                                                        input.value = color;
+                                                        input.onchange = (e) => handleColorChange(part, e.target.value);
+                                                        input.click();
+                                                    }}
+                                                ></div>
+                                                <span className="text-sm">{color}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                
+                                <div className="mt-4 flex flex-wrap gap-2">
+                                    {presetColors.map((color) => (
+                                        <div 
+                                            key={color}
+                                            className="color-swatch" 
+                                            style={{ backgroundColor: color }}
+                                            onClick={() => handleColorChange('main', color)}
+                                        ></div>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            <div className="mb-6">
+                                <h2 className="text-xl font-semibold mb-2">Static angles:</h2>
+                                <div className="flex flex-wrap gap-2">
+                                    {angles.map(angle => (
+                                        <div 
+                                            key={angle}
+                                            className={`angle-button ${currentAngle === angle ? 'active' : ''}`}
+                                            onClick={() => {
+                                                setCurrentAngle(angle);
+                                                setAnimate(false);
+                                            }}
+                                        >
+                                            {angle}°
+                                        </div>
+                                    ))}
+                                    <div className="mt-2 text-sm text-gray-600">222222 Scene background</div>
+                                </div>
+                            </div>
+                            
+                            <div className="mb-6">
+                                <h2 className="text-xl font-semibold mb-2">Animation speed:</h2>
+                                <div className="flex items-center gap-4">
+                                    <label className="flex items-center">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={animate}
+                                            onChange={(e) => setAnimate(e.target.checked)}
+                                            className="mr-2"
+                                        />
+                                        Animate
+                                    </label>
+                                    <label className="flex items-center">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={reverse}
+                                            onChange={(e) => setReverse(e.target.checked)}
+                                            className="mr-2"
+                                        />
+                                        Reverse
+                                    </label>
+                                </div>
+                                <input 
+                                    type="range" 
+                                    min="1" 
+                                    max="100" 
+                                    value={speed}
+                                    onChange={(e) => setSpeed(e.target.value)}
+                                    className="w-full mt-2"
+                                />
+                                <div className="text-sm text-gray-600 text-center">{speed}%</div>
+                            </div>
+                            
+                            <div className="mb-6">
+                                <button 
+                                    onClick={handleClearBackground}
+                                    className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded"
+                                >
+                                    Clear Background Image
+                                </button>
+                            </div>
+                            
+                            <div className="border-t pt-4">
+                                <div className="flex gap-2 mb-4">
+                                    <button 
+                                        onClick={handleAddImage}
+                                        className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+                                    >
+                                        Add Image
+                                    </button>
+                                    <button 
+                                        onClick={handleAddText}
+                                        className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+                                    >
+                                        Add Text
+                                    </button>
+                                </div>
+                                
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium mb-1">Opacity</label>
+                                    <input 
+                                        type="range" 
+                                        min="0" 
+                                        max="100" 
+                                        value={opacity}
+                                        onChange={(e) => setOpacity(e.target.value)}
+                                        className="w-full"
+                                    />
+                                    <div className="text-sm text-gray-600 text-center">{opacity}%</div>
+                                </div>
+                                
+                                <div className="flex gap-2 mb-4">
+                                    <button 
+                                        onClick={handleSnapshot}
+                                        className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded"
+                                    >
+                                        Snapshot 3D Scene
+                                    </button>
+                                    <button className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">
+                                        Download Layout
+                                    </button>
+                                </div>
+                                
+                                <button className="w-full bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded mb-4">
+                                    Rendering Video
+                                </button>
+                                
+                                <div className="text-sm text-gray-600">
+                                    <div>Messages</div>
+                                    <div>Wireless chat</div>
+                                    <div>Facebook.com</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {/* Right panel - 3D Preview */}
+                        <div className="w-full lg:w-2/3">
+                            <div className="bg-white p-6 rounded-lg shadow-md">
+                                <div className="canvas-container flex items-center justify-center">
+                                    <div ref={canvasRef}></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<TshirtDesigner />, document.getElementById('root'));
+    </script>
+</body>
+</html>

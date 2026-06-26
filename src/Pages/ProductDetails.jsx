@@ -257,12 +257,13 @@ const ProductDisplay = ({ product }) => {
       },
       { rootMargin: "-100px 0px 0px 0px" }
     );
-    if (actionButtonsRef.current) {
-      observer.observe(actionButtonsRef.current);
+    const actionButtons = actionButtonsRef.current;
+    if (actionButtons) {
+      observer.observe(actionButtons);
     }
     return () => {
-      if (actionButtonsRef.current) {
-        observer.unobserve(actionButtonsRef.current);
+      if (actionButtons) {
+        observer.unobserve(actionButtons);
       }
     };
   }, []);

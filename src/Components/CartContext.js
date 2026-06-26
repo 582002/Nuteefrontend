@@ -1,5 +1,5 @@
 // src/Components/CartContext.jsx
-import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import api from "../api/api"; // This uses the updated api instance with the JWT interceptor
 
 // --- Error Handler Utility ---
@@ -48,10 +48,11 @@ export function CartProvider({ children }) {
   });
 
   const mergedRef = useRef(false);
+  const fetchCartRef = useRef(null);
 
   // --- Sync session/user changes ---
   useEffect(() => {
-    fetchCart();
+    fetchCartRef.current?.();
     const handleStorage = (e) => {
       if (e.key === "user") {
         setUser(e.newValue ? JSON.parse(e.newValue) : null);
@@ -81,7 +82,7 @@ export function CartProvider({ children }) {
           const newSid = getOrCreateSessionId();
           setSessionId(newSid);
           
-          await fetchCart();
+          await fetchCartRef.current?.();
         } catch (err) {
           console.error("merge guest cart failed:", handleError(err));
         }
@@ -96,7 +97,7 @@ export function CartProvider({ children }) {
   );
 
   // --- Normalize cart item shape ---
-  const normalizeItems = (raw) => {
+  const normalizeItems = useCallback((raw) => {
     if (!raw) return [];
     const arr = Array.isArray(raw) ? raw : raw.items ? raw.items : [];
     return arr.map((i) => ({
@@ -111,10 +112,10 @@ export function CartProvider({ children }) {
       frontImg: i.frontImg ?? i.imageUrl ?? (i.imageUrls && i.imageUrls[0]) ?? null,
       raw: i,
     }));
-  };
+  }, []);
 
   // --- Fetch Cart ---
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     setLoading(true);
     try {
       let res;
@@ -139,7 +140,9 @@ export function CartProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [normalizeItems, sessionId]);
+
+  fetchCartRef.current = fetchCart;
 
   // --- Add to Cart ---
   const addToCart = async ({ productId, quantity = 1, size = null, color = null }) => {

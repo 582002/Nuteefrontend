@@ -4,7 +4,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
 import "./input.css";
 
-import Home from "./Pages/Home";
 import Shop from "./Pages/Shop";
 import Contact from "./Pages/Contact";
 import Blog from "./Pages/Blog";

@@ -1,38 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, useGLTF } from "@react-three/drei";
+import React from "react";
 import { Link } from "react-router-dom";
-
-// 3D Model Component
-const TShirtModel = ({ color }) => {
-  const group = useRef();
-  const { nodes, materials } = useGLTF("/shirt_baked_2.glb");
-
-  useFrame(() => {
-    if (group.current) {
-      group.current.rotation.y += 0.01;
-    }
-  });
-
-  useEffect(() => {
-    if (materials.lambert1) {
-      materials.lambert1.color.set(color);
-    }
-  }, [color, materials]);
-
-  return (
-    <group ref={group} scale={[7.5, 7.5, 7.5]} position={[0, -0.8, 0]}>
-      <mesh
-        geometry={nodes.T_Shirt_male.geometry}
-        material={materials.lambert1}
-        position={[0.419, -0.2, 0]}
-        rotation={[Math.PI / 2, 0, 0]}
-      />
-    </group>
-  );
-};
-
-useGLTF.preload("/shirt_baked_2.glb");
 
 // --- HERO SECTION (TOP) ---
 // --- HERO SECTION (TOP) ---

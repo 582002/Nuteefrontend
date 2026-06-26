@@ -102,14 +102,6 @@ const cartCount = cartItems.reduce(
     setTimeout(() => setSearchQuery(""), 300);
   };
 
-  const closeAllMenus = () => {
-    setIsProfileMenuOpen(false);
-    if (mobileMenuOpen) {
-      toggleMobileMenu();
-    }
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   // --- VEXO UI STYLES (TUNED TO #EEEAE5 THEME) ---
   const desktopNavLinkClass =
     "uppercase text-xs tracking-wide font-semibold text-[#3a3126] transition duration-200 hover:text-black hover:opacity-75";
@@ -440,15 +432,15 @@ const cartCount = cartItems.reduce(
               )}
             </div>
             <div className="mt-auto flex gap-4 text-xl text-[#7b6a58]">
-              <a href="#" aria-label="Facebook">
+              <button type="button" aria-label="Facebook">
                 <FaFacebookF />
-              </a>
-              <a href="#" aria-label="Twitter">
+              </button>
+              <button type="button" aria-label="Twitter">
                 <FaXTwitter />
-              </a>
-              <a href="#" aria-label="Instagram">
+              </button>
+              <button type="button" aria-label="Instagram">
                 <FaInstagram />
-              </a>
+              </button>
             </div>
           </div>
         </div>

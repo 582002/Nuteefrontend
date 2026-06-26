@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import api from "./api/api";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
 import {
   TrashIcon, PlusIcon, PhotoIcon, XMarkIcon,
-  ShoppingBagIcon, CheckIcon, PencilSquareIcon,
+  ShoppingBagIcon, PencilSquareIcon,
   CloudArrowUpIcon, InformationCircleIcon,
   TagIcon, BeakerIcon, ClipboardDocumentListIcon,
   ArrowPathIcon, MagnifyingGlassIcon, FunnelIcon,
   ChevronDownIcon, ChevronUpIcon, PhoneIcon,
   MapPinIcon, CreditCardIcon, ClockIcon, CheckBadgeIcon,
-  BanknotesIcon, truckIcon, ReceiptPercentIcon
+  BanknotesIcon
 } from "@heroicons/react/24/outline";
 
 // --- Constants ---
@@ -73,22 +73,22 @@ const AdminPanel = () => {
   const [extraFiles, setExtraFiles] = useState([]);
   const [previews, setPreviews] = useState({ thumb: null, extras: [] });
 
-  const showAlert = (msg, type = "success") => {
+  const showAlert = useCallback((msg, type = "success") => {
     setAlert({ show: true, msg, type });
     setTimeout(() => setAlert({ show: false, msg: "", type: "success" }), 4000);
-  };
+  }, []);
 
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     try {
       const res = await api.get("/api/products", { params: { size: 100 } });
       if (res.data?.content) setProducts(res.data.content);
       else if (Array.isArray(res.data)) setProducts(res.data);
     } catch (err) { showAlert("Session error", "error"); }
-  };
+  }, [showAlert]);
 
   useEffect(() => {
     if (isLoggedIn && activeTab === "inventory") loadProducts();
-  }, [isLoggedIn, activeTab]);
+  }, [isLoggedIn, activeTab, loadProducts]);
 
   // Inventory Handlers
   const handleThumbChange = (e) => {
@@ -334,7 +334,7 @@ const OrdersManagement = ({ showAlert }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedOrder, setExpandedOrder] = useState(null);
 
-  const fetchOrdersAndStats = async () => {
+  const fetchOrdersAndStats = useCallback(async () => {
     try {
       setLoading(true);
       const [ordRes, statRes] = await Promise.all([
@@ -345,9 +345,9 @@ const OrdersManagement = ({ showAlert }) => {
       setStats(statRes.data);
     } catch (err) { showAlert("Sync Failed", "error"); }
     finally { setLoading(false); }
-  };
+  }, [showAlert]);
 
-  useEffect(() => { fetchOrdersAndStats(); }, []);
+  useEffect(() => { fetchOrdersAndStats(); }, [fetchOrdersAndStats]);
 
   const updateStatus = async (orderId, newStatus) => {
     try {

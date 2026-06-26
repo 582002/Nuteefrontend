@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../api/authService";
 import toast from "react-hot-toast";
@@ -98,7 +98,7 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
       const res = await authService.getOrders();
@@ -120,11 +120,11 @@ export default function OrdersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [fetchOrders]);
 
   const formatINR = (amt) => 
     new Intl.NumberFormat("en-IN", { 

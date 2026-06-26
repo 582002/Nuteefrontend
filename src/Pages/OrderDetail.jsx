@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import authService from "../api/authService";
 import toast from "react-hot-toast";
@@ -7,7 +7,6 @@ import {
   MdOutlineArrowBack, 
   MdOutlineReceipt, 
   MdCheckCircle, 
-  MdOutlineHelpOutline,
   MdClose,
   MdAssignmentReturn
 } from "react-icons/md";
@@ -24,15 +23,7 @@ export default function OrderDetail() {
   const [returnDesc, setReturnDesc] = useState("");
   const [submittingReturn, setSubmittingReturn] = useState(false);
 
-  useEffect(() => {
-    if (!id || id === "orders") {
-      navigate("/orders");
-      return;
-    }
-    fetchOrderData();
-  }, [id, navigate]);
-
-  const fetchOrderData = async () => {
+  const fetchOrderData = useCallback(async () => {
     try {
       setLoading(true);
       const res = await authService.getOrder(id);
@@ -47,7 +38,15 @@ export default function OrderDetail() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, navigate]);
+
+  useEffect(() => {
+    if (!id || id === "orders") {
+      navigate("/orders");
+      return;
+    }
+    fetchOrderData();
+  }, [id, navigate, fetchOrderData]);
 
   const handleReturnSubmit = async (e) => {
     e.preventDefault();
